@@ -1,10 +1,10 @@
-import defaultLogo from '../images/shaikrahmathullah-logo.svg';
+import defaultLogo from '../images/mmshahfaisal-logo.svg';
 
 /**
  * =========================================================================
  * 🌟 GLOBAL SITE CONFIGURATION (CENTRAL CONTROL PANEL)
  * =========================================================================
- * SHAIK RAHMATHULLAH LLC — Central Brand, Contact & Color Settings
+ * MM SHAH FAISAL LLC — Central Brand, Contact & Color Settings
  * =========================================================================
  */
 
@@ -13,12 +13,12 @@ export const siteConfig = {
   // ─────────────────────────────────────────────
   // 🏢 COMPANY IDENTITY
   // ─────────────────────────────────────────────
-  companyName:     "Shaik Rahmathullah LLC",
-  shortName:       "Shaik Rahmathullah",
-  legalName:       "SHAIK RAHMATHULLAH LLC",
+  companyName:     "MM Shah Faisal LLC",
+  shortName:       "MM Shah Faisal",
+  legalName:       "MM SHAH FAISAL LLC",
   tagline:         "Premium Wholesale, General Trading & Global Distribution",
-  heroSubtitle:    "Direct manufacturer sourcing, dependable bulk supply chains, and exceptional consumer essentials curated by Shaik Rahmathullah LLC.",
-  eyebrowStandard: "THE SHAIK RAHMATHULLAH STANDARD OF EXCELLENCE",
+  heroSubtitle:    "Direct manufacturer sourcing, dependable bulk supply chains, and exceptional consumer essentials curated by MM Shah Faisal LLC.",
+  eyebrowStandard: "THE MM SHAH FAISAL STANDARD OF EXCELLENCE",
 
   // ─────────────────────────────────────────────
   // 📞 PHONE, WHATSAPP & EMAIL
@@ -29,8 +29,8 @@ export const siteConfig = {
   phoneDirectTel:  "+966530987507",         // tel: dial link
   whatsappNumber:  "966530987507",          // Numbers only (no + or spaces)
   whatsappDisplay: "(+966) 53 098 7507",
-  email:           "info@shaikrahmathullahllc.com",
-  website:         "www.shaikrahmathullahllc.com",
+  email:           "info@mmshahfaisalllc.com",
+  website:         "www.mmshahfaisalllc.com",
 
   // ─────────────────────────────────────────────
   // 📍 ADDRESS & HUBS
@@ -52,8 +52,8 @@ export const siteConfig = {
   // ─────────────────────────────────────────────
   about: {
     // Main paragraphs
-    mission:      "At Shaik Rahmathullah LLC, our mission is to deliver exceptional wholesale value, connecting premier international manufacturers with retailers, commercial distributors, and online merchants worldwide. Founded on the principles of trust, transparency, and trade excellence, we serve as a reliable bridge between global suppliers and growing businesses.",
-    b2bNote:      "Whether you operate independent retail stores, supermarket chains, or e-commerce marketplaces, Shaik Rahmathullah LLC provides flexible minimums, volume price tiers, and dependable fulfillment. Our team ensures every order meets the highest quality and delivery standards you can count on.",
+    mission:      "At MM Shah Faisal LLC, our mission is to deliver exceptional wholesale value, connecting premier international manufacturers with retailers, commercial distributors, and online merchants worldwide. Founded on the principles of trust, transparency, and trade excellence, we serve as a reliable bridge between global suppliers and growing businesses.",
+    b2bNote:      "Whether you operate independent retail stores, supermarket chains, or e-commerce marketplaces, MM Shah Faisal LLC provides flexible minimums, volume price tiers, and dependable fulfillment. Our team ensures every order meets the highest quality and delivery standards you can count on.",
     sourcingNote: "We pride ourselves on thoughtful sourcing — choosing products that deliver genuine performance, high customer satisfaction, and dependable quality for retail and wholesale partners worldwide.",
 
     // 3 value cards shown on the About Us page
@@ -84,7 +84,7 @@ export const siteConfig = {
     tagline:      "We are at your service for catalog requests, partnership discussions, or general inquiries.",
     cardTitle:    "Direct Coordinates",
     formTitle:    "Send Us a Message",
-    formSuccess:  "Thank you! Your message has been received by Shaik Rahmathullah LLC. We will reply within 24 hours.",
+    formSuccess:  "Thank you! Your message has been received by MM Shah Faisal LLC. We will reply within 24 hours.",
     labels: {
       email:      "Email",
       phone:      "Phone Number",
@@ -104,8 +104,8 @@ export const siteConfig = {
     newsletterSuccess:  "✓ Thank you for subscribing to our wholesale bulletin!",
     copyrightSuffix:    "All rights reserved.",
     managedByLabel:     "Global Logistics & Distribution Hub",
-    websiteUrl:         "https://www.shaikrahmathullahllc.com",
-    domain:             "shaikrahmathullahllc.com",
+    websiteUrl:         "https://www.mmshahfaisalllc.com",
+    domain:             "mmshahfaisalllc.com",
 
     // Social media
     socials: [
@@ -127,7 +127,7 @@ export const siteConfig = {
   // ⭐ TESTIMONIAL
   // ─────────────────────────────────────────────
   testimonial: {
-    quote:  "Partnering with Shaik Rahmathullah LLC transformed our wholesale inventory turnover. Top-tier product authenticity, fast fulfillment, and flawless communication.",
+    quote:  "Partnering with MM Shah Faisal LLC transformed our wholesale inventory turnover. Top-tier product authenticity, fast fulfillment, and flawless communication.",
     author: "Verified Commercial Trade Partner"
   },
 

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { categories, products } from './data/products';
 import { siteConfig } from './data/siteConfig';
-import logoImg from './images/shaikrahmathullah-logo.svg';
+import logoImg from './images/mmshahfaisal-logo.svg';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -477,14 +477,14 @@ export default function App() {
       {/* VIEW: HOME PAGE */}
       {activeTab === 'home' && (
         <main>
-          {/* HERO SECTION - LUXURY SHAIK RAHMATHULLAH SHOWCASE */}
+          {/* HERO SECTION - LUXURY MM SHAH FAISAL SHOWCASE */}
           <section className="hero-section">
             <div className="hero-overlay"></div>
             <div className="hero-container">
               <div className="hero-content">
                 <div className="hero-eyebrow-badge">
                   <Sparkles size={14} className="hero-sparkle-icon" />
-                  <span>{siteConfig.eyebrowStandard || 'THE SHAIK RAHMATHULLAH STANDARD'}</span>
+                  <span>{siteConfig.eyebrowStandard || 'THE MM SHAH FAISAL STANDARD'}</span>
                 </div>
                 <h1 className="hero-title">
                   Quality Products & <span className="hero-title-highlight">Global Wholesale</span>
@@ -665,7 +665,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* THE SHAIK RAHMATHULLAH LLC DISTINCTION EXPERIENCE (BENTO SHOWPIECE) */}
+          {/* THE MM SHAH FAISAL LLC DISTINCTION EXPERIENCE (BENTO SHOWPIECE) */}
           <section className="hf-experience-section">
             <div className="section-wrapper">
               <div className="section-header-center">
@@ -836,7 +836,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* SECTION: CONTACT SHAIK RAHMATHULLAH LLC (ON HOME PAGE) */}
+          {/* SECTION: CONTACT MM SHAH FAISAL LLC (ON HOME PAGE) */}
           <section id="contact-section" className="section-wrapper" style={{ padding: '60px 24px 70px' }}>
             <div style={{ maxWidth: '980px', margin: '0 auto' }}>
               <div className="section-header-center">
@@ -1822,8 +1822,8 @@ export default function App() {
                     <Globe size={20} color="var(--accent-teal)" />
                     <div>
                       <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>Official Website</div>
-                      <a href={`https://${(siteConfig.website || 'shaikrahmathullahllc.com').replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" style={{ color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
-                        {siteConfig.website || 'www.shaikrahmathullahllc.com'}
+                      <a href={`https://${(siteConfig.website || 'mmshahfaisalllc.com').replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" style={{ color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
+                        {siteConfig.website || 'www.mmshahfaisalllc.com'}
                       </a>
                     </div>
                   </div>

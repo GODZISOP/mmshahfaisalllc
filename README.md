@@ -1,13 +1,13 @@
-# Shaik Rahmathullah LLC - Wholesale, General Trading & E-Commerce Website
+# MM Shah Faisal LLC - Wholesale, General Trading & E-Commerce Website
 
-Official digital catalog and wholesale procurement portal for **SHAIK RAHMATHULLAH LLC**.
+Official digital catalog and wholesale procurement portal for **MM SHAH FAISAL LLC**.
 
 ## 🌟 Overview
-* **Brand:** Shaik Rahmathullah LLC
+* **Brand:** MM Shah Faisal LLC
 * **Tagline:** Premium Wholesale, General Trading & Global Distribution
-* **Website:** https://www.shaikrahmathullahllc.com
+* **Website:** https://www.mmshahfaisalllc.com
 * **Primary Contacts:**
-  * **Email:** info@shaikrahmathullahllc.com
+  * **Email:** info@mmshahfaisalllc.com
   * **Phone / WhatsApp:** (+966) 53 098 7507
   * **Operations:** Global Distribution & Wholesale Trade Hub (Middle East & North America)
 
