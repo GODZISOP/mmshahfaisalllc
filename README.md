@@ -8,7 +8,7 @@ Official digital catalog and wholesale procurement portal for **MM SHAH FAISAL L
 * **Website:** https://www.mmshahfaisalllc.com
 * **Primary Contacts:**
   * **Email:** info@mmshahfaisalllc.com
-  * **Phone / WhatsApp:** (+966) 53 098 7507
+  * **Phone / WhatsApp:** (+966) 50 226 2446
   * **Operations:** Global Distribution & Wholesale Trade Hub (Middle East & North America)
 
 ## 🛍️ Product Catalog & Collections

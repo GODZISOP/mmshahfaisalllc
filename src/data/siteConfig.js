@@ -23,12 +23,12 @@ export const siteConfig = {
   // ─────────────────────────────────────────────
   // 📞 PHONE, WHATSAPP & EMAIL
   // ─────────────────────────────────────────────
-  phonePrimary:    "(+966) 53 098 7507",   // Top nav display
-  phonePrimaryTel: "+966530987507",         // tel: dial link
-  phoneDirect:     "(+966) 53 098 7507",   // Contact page direct line
-  phoneDirectTel:  "+966530987507",         // tel: dial link
-  whatsappNumber:  "966530987507",          // Numbers only (no + or spaces)
-  whatsappDisplay: "(+966) 53 098 7507",
+  phonePrimary:    "(+966) 50 226 2446",   // Top nav display
+  phonePrimaryTel: "+966502262446",         // tel: dial link
+  phoneDirect:     "(+966) 50 226 2446",   // Contact page direct line
+  phoneDirectTel:  "+966502262446",         // tel: dial link
+  whatsappNumber:  "966502262446",          // Numbers only (no + or spaces)
+  whatsappDisplay: "(+966) 50 226 2446",
   email:           "info@mmshahfaisalllc.com",
   website:         "www.mmshahfaisalllc.com",
 
