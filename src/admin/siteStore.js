@@ -1,10 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
+
+const DEFAULT_SITE_SLUG = 'mmshahfaisalllc';
+
 const baseSiteConfig = {
   companyName: 'MM Shah Faisal LLC',
   shortName: 'MM Shah Faisal',
   legalName: 'MM SHAH FAISAL LLC',
   tagline: 'Premium Wholesale, General Trading & Global Distribution',
+  heroTitle: 'Quality Products Online',
   heroSubtitle:
     'Direct manufacturer sourcing, dependable bulk supply chains, and exceptional consumer essentials curated by MM Shah Faisal LLC.',
   eyebrowStandard: 'THE MM SHAH FAISAL STANDARD OF EXCELLENCE',
@@ -239,6 +243,62 @@ function getInitialSeedWebsites() {
       clientAccessCode: '',
       updatedAt: now,
       config: buildSeededConfig({}),
+    },
+    {
+      slug: 'kaleemullahllc',
+      domain: 'kaleemullahllc.com',
+      name: 'Kaleemullah LLC',
+      clientEmail: '',
+      clientAccessCode: '',
+      updatedAt: now,
+      config: buildSeededConfig({
+        companyName: 'Kaleemullah LLC',
+        shortName: 'Kaleemullah',
+        legalName: 'KALEEMULLAH LLC',
+        tagline: 'Premium Wholesale, General Trading & Global Distribution',
+        heroTitle: 'Quality Products Online',
+        heroSubtitle:
+          'Direct manufacturer sourcing, dependable bulk supply chains, and exceptional consumer essentials curated by Kaleemullah LLC.',
+        eyebrowStandard: 'THE KALEEMULLAH STANDARD OF EXCELLENCE',
+        email: 'info@kaleemullahllc.com',
+        website: 'www.kaleemullahllc.com',
+        phonePrimary: '(+966) 58 038 8938',
+        phonePrimaryTel: '+966580388938',
+        phoneDirect: '(+966) 58 038 8938',
+        phoneDirectTel: '+966580388938',
+        whatsappNumber: '966580388938',
+        whatsappDisplay: '(+966) 58 038 8938',
+        about: {
+          ...baseSiteConfig.about,
+          mission:
+            'At Kaleemullah LLC, our mission is to deliver exceptional wholesale value, connecting premier international manufacturers with retailers, commercial distributors, and online merchants worldwide. Founded on the principles of trust, transparency, and trade excellence, we serve as a reliable bridge between global suppliers and growing businesses.',
+          b2bNote:
+            'Whether you operate independent retail stores, supermarket chains, or e-commerce marketplaces, Kaleemullah LLC provides flexible minimums, volume price tiers, and dependable fulfillment. Our team ensures every order meets the highest quality and delivery standards you can count on.',
+        },
+        contact: {
+          ...baseSiteConfig.contact,
+          formSuccess:
+            'Thank you! Your message has been received by Kaleemullah LLC. We will reply within 24 hours.',
+        },
+        footer: {
+          ...baseSiteConfig.footer,
+          websiteUrl: 'https://www.kaleemullahllc.com',
+          domain: 'kaleemullahllc.com',
+        },
+        testimonial: {
+          ...baseSiteConfig.testimonial,
+          quote:
+            'Partnering with Kaleemullah LLC transformed our wholesale inventory turnover. Top-tier product authenticity, fast fulfillment, and flawless communication.',
+        },
+        theme: {
+          primaryNavy: '#0a192f',
+          secondaryTeal: '#1e3a8a',
+          accentTeal: '#2563eb',
+          accentHover: '#1d4ed8',
+          accentGold: '#3b82f6',
+          bgLight: '#f8fafc',
+        },
+      }),
     },
     {
       slug: 'gulf-horizon-trading',
@@ -640,6 +700,8 @@ export async function resolveActiveWebsite() {
             (r) => normalizeDomain(r.domain) === identifier.value
           );
           if (domainMatch) return mapSupabaseRowToWebsite(domainMatch);
+          const defaultMatch = allRows.find((r) => r.slug === DEFAULT_SITE_SLUG);
+          if (defaultMatch) return mapSupabaseRowToWebsite(defaultMatch);
         }
       } else {
         const { data } = await client
