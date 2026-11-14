@@ -7,10 +7,43 @@ import {
   LayoutGrid, Sparkles, ChevronDown, Package, Star, Globe
 } from 'lucide-react';
 import { categories, products } from './data/products';
-import { siteConfig } from './data/siteConfig';
+import { AdminPanel, useActiveSiteConfig } from './admin';
 import logoImg from './images/mmshahfaisal-logo.svg';
 
+function isAdminHostname() {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname.toLowerCase();
+  return (
+    host.startsWith('admin.') ||
+    host.includes('-admin.') ||
+    host.includes('admin-') ||
+    import.meta.env.VITE_ADMIN_ONLY === 'true'
+  );
+}
+
+function checkIsAdminRoute() {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  const cleanPath = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  const cleanHash = window.location.hash.toLowerCase();
+  if (
+    cleanPath.endsWith('/admin') ||
+    cleanHash.startsWith('#admin') ||
+    cleanHash.startsWith('#/admin') ||
+    params.has('admin')
+  ) {
+    return true;
+  }
+  if (isAdminHostname() && !params.has('preview')) {
+    return true;
+  }
+  return false;
+}
+
 export default function App() {
+  const { config: siteConfig, refresh: refreshActiveSite } = useActiveSiteConfig();
+  const [isAdminMode, setIsAdminMode] = useState(checkIsAdminRoute);
+
   const [activeTab, setActiveTab] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,8 +70,43 @@ export default function App() {
   const [activeDetailTab, setActiveDetailTab] = useState('description');
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Sync Admin route on hash/popstate
+  useEffect(() => {
+    const onRouteChange = () => setIsAdminMode(checkIsAdminRoute());
+    window.addEventListener('hashchange', onRouteChange);
+    window.addEventListener('popstate', onRouteChange);
+    return () => {
+      window.removeEventListener('hashchange', onRouteChange);
+      window.removeEventListener('popstate', onRouteChange);
+    };
+  }, []);
+
+  const openAdmin = () => {
+    const search = window.location.search || '';
+    window.history.pushState({}, '', `/admin${search}`);
+    setMobileMenuOpen(false);
+    setIsAdminMode(true);
+    window.scrollTo({ top: 0 });
+  };
+
+  const exitAdmin = (targetSlug = null) => {
+    const params = new URLSearchParams();
+    if (targetSlug) params.set('site', targetSlug);
+    if (isAdminHostname()) params.set('preview', '1');
+    const qs = params.toString();
+    const nextUrl = qs ? `/?${qs}` : '/';
+    window.history.pushState({}, '', nextUrl);
+    setIsAdminMode(false);
+    refreshActiveSite();
+    window.scrollTo({ top: 0 });
+  };
+
   // Apply theme & document title & browser favicon from siteConfig
   useEffect(() => {
+    if (isAdminMode) {
+      document.title = 'Control Panel | Multi-Website Admin';
+      return;
+    }
     if (siteConfig.theme) {
       const root = document.documentElement;
       if (siteConfig.theme.primaryNavy) root.style.setProperty('--primary-navy', siteConfig.theme.primaryNavy);
@@ -63,7 +131,7 @@ export default function App() {
     if (faviconLink && siteConfig.logo) {
       faviconLink.href = siteConfig.logo;
     }
-  }, []);
+  }, [siteConfig, isAdminMode]);
 
   // Sync cart to localStorage
   useEffect(() => {
@@ -206,6 +274,10 @@ export default function App() {
       }
     }, 60);
   };
+
+  if (isAdminMode) {
+    return <AdminPanel onExitAdmin={exitAdmin} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f7f9] text-[#1e293b]">
@@ -487,7 +559,11 @@ export default function App() {
                   <span>{siteConfig.eyebrowStandard || 'THE MM SHAH FAISAL STANDARD'}</span>
                 </div>
                 <h1 className="hero-title">
-                  Quality Products & <span className="hero-title-highlight">Global Wholesale</span>
+                  {siteConfig.heroTitle ? (
+                    siteConfig.heroTitle
+                  ) : (
+                    <>Quality Products & <span className="hero-title-highlight">Global Wholesale</span></>
+                  )}
                 </h1>
                 <p className="hero-description">
                   {siteConfig.heroSubtitle}
@@ -747,7 +823,7 @@ export default function App() {
                     rel="noreferrer" 
                     className="hf-btn-whatsapp-pill"
                   >
-                    <span>WhatsApp {siteConfig.phoneDirect}</span>
+                    <span>WhatsApp {siteConfig.whatsappDisplay || siteConfig.phoneDirect}</span>
                   </a>
                 </div>
               </div>
@@ -836,29 +912,60 @@ export default function App() {
             </div>
           </section>
 
-          {/* SECTION: CONTACT MM SHAH FAISAL LLC (ON HOME PAGE) */}
+          {/* SECTION: CONTACT (ON HOME PAGE) */}
           <section id="contact-section" className="section-wrapper" style={{ padding: '60px 24px 70px' }}>
             <div style={{ maxWidth: '980px', margin: '0 auto' }}>
               <div className="section-header-center">
-                <span className="hf-eyebrow-badge">GET IN TOUCH</span>
+                <span className="hf-eyebrow-badge">{siteConfig.contact?.sectionTag || 'GET IN TOUCH'}</span>
                 <h2 className="section-heading-clean" style={{ textAlign: 'center', marginTop: '10px' }}>
                   Contact {siteConfig.companyName}
                 </h2>
                 <p className="hf-section-subtitle">
-                  We are at your service for catalog requests, wholesale bulk pricing, partnership discussions, or general inquiries.
+                  {siteConfig.contact?.tagline}
                 </p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: '32px', marginTop: '40px' }} className="contact-grid-responsive">
                 <div style={{ background: 'var(--primary-navy)', color: '#fff', padding: '36px', borderRadius: '20px', border: '1px solid rgba(140, 95, 36, 0.3)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '20px', color: '#f5efe6' }}>Direct Coordinates</h3>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '20px', color: '#f5efe6' }}>{siteConfig.contact?.cardTitle || 'Direct Coordinates'}</h3>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.95rem' }}>
                       <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                        <Building2 size={20} color="var(--accent-teal)" style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <div>
+                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{siteConfig.contact?.labels?.management || 'Management'}</div>
+                          <div style={{ color: '#fff', fontWeight: '600' }}>{siteConfig.companyName}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                        <Phone size={20} color="var(--accent-teal)" style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <div>
+                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{siteConfig.contact?.labels?.phone || 'Phone Number'}</div>
+                          <div>Direct: <a href={`tel:${siteConfig.phoneDirectTel}`} style={{ color: '#fff', textDecoration: 'none' }}>{siteConfig.phoneDirect}</a></div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                        <MessageSquare size={20} color="#25d366" style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <div>
+                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{siteConfig.contact?.labels?.whatsapp || 'WhatsApp Chat'}</div>
+                          <a 
+                            href={`https://wa.me/${siteConfig.whatsappNumber}`} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            style={{ color: '#25d366', fontWeight: '700', textDecoration: 'none' }}
+                          >
+                            {siteConfig.whatsappDisplay || siteConfig.phoneDirect} (Instant)
+                          </a>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                         <Mail size={20} color="var(--accent-teal)" style={{ marginTop: '2px', flexShrink: 0 }} />
                         <div>
-                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</div>
+                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{siteConfig.contact?.labels?.email || 'Email'}</div>
                           <a href={`mailto:${siteConfig.email}`} style={{ color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
                             {siteConfig.email}
                           </a>
@@ -866,33 +973,20 @@ export default function App() {
                       </div>
 
                       <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                        <Phone size={20} color="var(--accent-teal)" style={{ marginTop: '2px', flexShrink: 0 }} />
-                        <div>
-                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone Number</div>
-                          <div>Direct: <a href={`tel:${siteConfig.phoneDirectTel}`} style={{ color: '#fff', textDecoration: 'none' }}>{siteConfig.phoneDirect}</a></div>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                         <MapPin size={20} color="var(--accent-teal)" style={{ marginTop: '2px', flexShrink: 0 }} />
                         <div>
-                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Operating Trade Hub</div>
+                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{siteConfig.contact?.labels?.hub || 'Operating Trade Hub'}</div>
                           <div style={{ color: '#fff', fontWeight: '600' }}>{siteConfig.address.line1}</div>
                           <div style={{ color: '#cbd5e1' }}>{siteConfig.address.line2}</div>
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                        <MessageSquare size={20} color="#25d366" style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <Globe size={20} color="var(--accent-teal)" style={{ marginTop: '2px', flexShrink: 0 }} />
                         <div>
-                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>WhatsApp Direct</div>
-                          <a 
-                            href={`https://wa.me/${siteConfig.whatsappNumber}`} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            style={{ color: '#25d366', fontWeight: '700', textDecoration: 'none' }}
-                          >
-                            {siteConfig.phoneDirect} (Instant)
+                          <div style={{ color: '#b8aba0', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Official Website</div>
+                          <a href={`https://${(siteConfig.website || 'mmshahfaisalllc.com').replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" style={{ color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
+                            {siteConfig.website || 'www.mmshahfaisalllc.com'}
                           </a>
                         </div>
                       </div>
@@ -900,12 +994,12 @@ export default function App() {
                   </div>
 
                   <div style={{ marginTop: '28px', paddingTop: '18px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem', color: '#b8aba0' }}>
-                    Managed by <strong>{siteConfig.companyName}</strong> â€¢ Global Distribution Hub
+                    Managed by <strong>{siteConfig.companyName}</strong> • {siteConfig.footer?.managedByLabel || 'Global Distribution Hub'}
                   </div>
                 </div>
 
                 <div style={{ background: '#fff', padding: '36px', borderRadius: '20px', border: '1px solid #eae2d6', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '18px', color: 'var(--primary-navy)', fontWeight: '700' }}>Send Us a Message</h3>
+                  <h3 style={{ fontSize: '1.25rem', marginBottom: '18px', color: 'var(--primary-navy)', fontWeight: '700' }}>{siteConfig.contact?.formTitle || 'Send Us a Message'}</h3>
                   <form onSubmit={handleFormSubmit} className="modal-form">
                     <div className="form-group">
                       <label className="form-label">Full Name *</label>
@@ -934,7 +1028,7 @@ export default function App() {
 
                   {formSubmitted && (
                     <div style={{ marginTop: '16px', padding: '12px', background: '#ecfdf5', color: '#065f46', borderRadius: '8px', fontSize: '0.9rem' }}>
-                      âœ“ Thank you! Your message has been received by {siteConfig.companyName}. We will reply within 24 hours.
+                      {siteConfig.contact?.formSuccess || `Thank you! Your message has been received by ${siteConfig.companyName}. We will reply within 24 hours.`}
                     </div>
                   )}
                 </div>
@@ -1507,26 +1601,27 @@ export default function App() {
             <p style={{ fontSize: '1.05rem', color: '#475569', lineHeight: 1.8, marginBottom: '20px' }}>
               <strong>{siteConfig.legalName}</strong> is dedicated to delivering excellence in global wholesale distribution and consumer essentials. {siteConfig.about.mission}
             </p>
-            <p style={{ fontSize: '1rem', color: '#475569', lineHeight: 1.8, marginBottom: '20px' }}>
-              We pride ourselves on thoughtful sourcing â€” choosing products that deliver genuine performance, high customer satisfaction, and dependable quality for retail and wholesale partners worldwide.
-            </p>
+            {siteConfig.about.sourcingNote && (
+              <p style={{ fontSize: '1rem', color: '#475569', lineHeight: 1.8, marginBottom: '20px' }}>
+                {siteConfig.about.sourcingNote}
+              </p>
+            )}
+            {siteConfig.about.b2bNote && (
+              <p style={{ fontSize: '1rem', color: '#475569', lineHeight: 1.8, marginBottom: '20px' }}>
+                {siteConfig.about.b2bNote}
+              </p>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', margin: '36px 0' }}>
-              <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ color: 'var(--primary-navy)', fontSize: '1.1rem', marginBottom: '8px' }}>Integrity First</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Transparent pricing, transparent communication, and verified product authenticity.</p>
-              </div>
-              <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ color: 'var(--primary-navy)', fontSize: '1.1rem', marginBottom: '8px' }}>Logistics Agility</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Fast customs turnaround, reliable carrier contracts, and multi-hub fulfillment.</p>
-              </div>
-              <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ color: 'var(--primary-navy)', fontSize: '1.1rem', marginBottom: '8px' }}>Partner Centric</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Dedicated trade managers ready to accommodate customer requirements and custom schedules.</p>
-              </div>
+              {(siteConfig.about.cards || []).map((card, idx) => (
+                <div key={idx} style={{ background: '#f8fafc', padding: '20px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                  <h3 style={{ color: 'var(--primary-navy)', fontSize: '1.1rem', marginBottom: '8px' }}>{card.title}</h3>
+                  <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{card.description}</p>
+                </div>
+              ))}
             </div>
             <div style={{ textAlign: 'center', marginTop: '30px' }}>
               <button className="btn-hero-primary" onClick={() => navigateTo('contact')}>
-                Contact Management Desk
+                {siteConfig.about.ctaButton || 'Contact Management Desk'}
               </button>
             </div>
           </div>
@@ -1796,25 +1891,66 @@ export default function App() {
         <div className="section-wrapper" style={{ padding: '60px 24px' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto' }}>
             <div className="section-header-center">
-              <span className="section-tag">GET IN TOUCH</span>
+              <span className="section-tag">{siteConfig.contact?.sectionTag || 'GET IN TOUCH'}</span>
               <h1 className="section-title">Contact {siteConfig.companyName}</h1>
               <p style={{ color: '#64748b', maxWidth: '600px', margin: '10px auto 0' }}>
-                We are at your service for catalog requests, partnership discussions, or general inquiries.
+                {siteConfig.contact?.tagline}
               </p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '32px', marginTop: '40px' }}>
               <div style={{ background: 'var(--primary-navy)', color: '#fff', padding: '36px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '16px', color: '#f8fafc' }}>Direct Coordinates</h3>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: '16px', color: '#f8fafc' }}>{siteConfig.contact?.cardTitle || 'Direct Coordinates'}</h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.95rem' }}>
                   <div style={{ display: 'flex', gap: '12px' }}>
+                    <Building2 size={20} color="var(--accent-teal)" />
+                    <div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>{siteConfig.contact?.labels?.management || 'Management'}</div>
+                      <div style={{ color: '#fff', fontWeight: '600' }}>{siteConfig.companyName}</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Management & Operations</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <Phone size={20} color="var(--accent-teal)" />
+                    <div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>{siteConfig.contact?.labels?.phone || 'Phone Number'}</div>
+                      <div>Direct: <a href={`tel:${siteConfig.phoneDirectTel}`} style={{ color: '#fff' }}>{siteConfig.phoneDirect}</a></div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <MessageSquare size={20} color="#25d366" />
+                    <div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>{siteConfig.contact?.labels?.whatsapp || 'WhatsApp Chat'}</div>
+                      <a 
+                        href={`https://wa.me/${siteConfig.whatsappNumber}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        style={{ color: '#25d366', fontWeight: '600', textDecoration: 'none' }}
+                      >
+                        {siteConfig.whatsappDisplay || siteConfig.phoneDirect} (Instant)
+                      </a>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
                     <Mail size={20} color="var(--accent-teal)" />
                     <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>Email</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>{siteConfig.contact?.labels?.email || 'Email'}</div>
                       <a href={`mailto:${siteConfig.email}`} style={{ color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
                         {siteConfig.email}
                       </a>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <MapPin size={20} color="var(--accent-teal)" />
+                    <div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>{siteConfig.contact?.labels?.hub || 'Operating Trade Hub'}</div>
+                      <div style={{ color: '#fff', fontWeight: '600' }}>{siteConfig.address.line1}</div>
+                      <div style={{ color: '#cbd5e1' }}>{siteConfig.address.line2}</div>
                     </div>
                   </div>
 
@@ -1827,52 +1963,11 @@ export default function App() {
                       </a>
                     </div>
                   </div>
-
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <Phone size={20} color="var(--accent-teal)" />
-                    <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>Phone Number</div>
-                      <div>Direct: <a href={`tel:${siteConfig.phoneDirectTel}`} style={{ color: '#fff' }}>{siteConfig.phoneDirect}</a></div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <MapPin size={20} color="var(--accent-teal)" />
-                    <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>Operating Trade Hub</div>
-                      <div style={{ color: '#fff', fontWeight: '600' }}>Global Distribution Trade Desk</div>
-                      <div style={{ color: '#cbd5e1' }}>Middle East & North America Logistics</div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <MessageSquare size={20} color="#25d366" />
-                    <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>WhatsApp Chat</div>
-                      <a 
-                        href={`https://wa.me/${siteConfig.whatsappNumber}`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        style={{ color: '#25d366', fontWeight: '600', textDecoration: 'none' }}
-                      >
-                        {siteConfig.phoneDirect} (Instant)
-                      </a>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <Building2 size={20} color="var(--accent-teal)" />
-                    <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase' }}>Management</div>
-                      <div style={{ color: '#fff' }}>{siteConfig.companyName}</div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Management & Operations</div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
               <div style={{ background: '#fff', padding: '36px', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '18px' }}>Send Us a Message</h3>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '18px' }}>{siteConfig.contact?.formTitle || 'Send Us a Message'}</h3>
                 <form onSubmit={handleFormSubmit} className="modal-form">
                   <div className="form-group">
                     <label className="form-label">Full Name *</label>
@@ -1897,7 +1992,7 @@ export default function App() {
 
                 {formSubmitted && (
                   <div style={{ marginTop: '16px', padding: '12px', background: '#ecfdf5', color: '#065f46', borderRadius: '8px', fontSize: '0.9rem' }}>
-                    Thank you! Your message has been received by {siteConfig.companyName}. We will reply within 24 hours.
+                    {siteConfig.contact?.formSuccess || `Thank you! Your message has been received by ${siteConfig.companyName}. We will reply within 24 hours.`}
                   </div>
                 )}
               </div>
@@ -1906,45 +2001,80 @@ export default function App() {
         </div>
       )}
 
-      {/* 3. FOOTER AS EXACTLY SPECIFIED BY USER */}
+      {/* FOOTER */}
       <footer className="site-footer">
         <div className="footer-container">
           <div className="footer-brand">
             <img src={siteConfig.logo || logoImg} alt={`${siteConfig.companyName} Logo`} className="footer-logo-img" />
             <h3>{siteConfig.companyName}</h3>
             <p>
-              Quality products online. Sourcing and distribution dedicated to supplying top tier merchandise with transparent global logistics.
+              {siteConfig.footer?.description}
             </p>
             <div style={{ marginTop: '16px', fontSize: '0.85rem', color: '#cbd5e1' }}>
               <div><strong>Management:</strong> {siteConfig.companyName}</div>
-              <div><strong>Operations:</strong> Global Distribution & Wholesale Trade Hub</div>
-              <div><strong>Trade Desk Hotline:</strong> {siteConfig.phoneDirect} â€¢ {siteConfig.email}</div>
+              <div><strong>Operations:</strong> {siteConfig.footer?.operationsLabel}</div>
+              <div><strong>Trade Desk Hotline:</strong> {siteConfig.phoneDirect} • {siteConfig.email}</div>
             </div>
           </div>
 
           <div className="footer-col">
             <h4>Menu</h4>
             <ul>
-              <li><a href="#home" onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>Home</a></li>
-              <li><a href="#shop" onClick={(e) => { e.preventDefault(); navigateTo('home'); const el = document.getElementById('featured-products-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>Shop</a></li>
-              <li><a href="#about" onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>About</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); navigateTo('contact'); }}>Contact</a></li>
+              {(siteConfig.footer?.menu || []).map((item, idx) => (
+                <li key={idx}>
+                  <a
+                    href={`#${item.tab || 'home'}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateTo(item.tab || 'home');
+                      if (item.scrollTo) {
+                        setTimeout(() => {
+                          const el = document.getElementById(item.scrollTo);
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }, 60);
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div className="footer-col">
             <h4>Contacts</h4>
             <ul style={{ marginBottom: '20px' }}>
-              <li>
-                <a href={`mailto:${siteConfig.email}`}>
-                  {siteConfig.email}
-                </a>
+              <li style={{ color: '#ffffff', fontWeight: '600' }}>
+                {siteConfig.companyName}
               </li>
               <li>
                 <a href={`tel:${siteConfig.phoneDirectTel}`}>
                   {siteConfig.phoneDirect}
                 </a>
               </li>
+              <li>
+                <a href={`https://wa.me/${siteConfig.whatsappNumber}`} target="_blank" rel="noreferrer">
+                  WhatsApp: {siteConfig.whatsappDisplay || siteConfig.phoneDirect}
+                </a>
+              </li>
+              <li>
+                <a href={`mailto:${siteConfig.email}`}>
+                  {siteConfig.email}
+                </a>
+              </li>
+              {(siteConfig.address?.line1 || siteConfig.address?.line2 || siteConfig.address?.full) && (
+                <li style={{ color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                  {siteConfig.address?.line1 ? (
+                    <>
+                      <div>{siteConfig.address.line1}</div>
+                      {siteConfig.address?.line2 && <div>{siteConfig.address.line2}</div>}
+                    </>
+                  ) : (
+                    siteConfig.address?.full
+                  )}
+                </li>
+              )}
               {siteConfig.website && (
                 <li>
                   <a href={`https://${siteConfig.website.replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer">
@@ -1956,9 +2086,13 @@ export default function App() {
 
             <h4 style={{ marginTop: '16px' }}>Socials</h4>
             <ul className="footer-social-links">
-              <li><a href="https://facebook.com/" target="_blank" rel="noreferrer">Facebook</a></li>
-              <li><a href="https://instagram.com/" target="_blank" rel="noreferrer">Instagram</a></li>
-              <li><a href="https://tiktok.com/" target="_blank" rel="noreferrer">TikTok</a></li>
+              {(siteConfig.footer?.socials || []).map((social, idx) => (
+                <li key={idx}>
+                  <a href={social.url} target="_blank" rel="noreferrer">
+                    {social.label}
+                  </a>
+                </li>
+              ))}
             </ul>
             
           </div>
@@ -1966,7 +2100,7 @@ export default function App() {
           <div className="footer-col">
             <h4>Subscribe to our newsletter</h4>
             <p style={{ fontSize: '0.85rem', marginBottom: '14px', color: '#cbd5e1' }}>
-              Receive exclusive price updates, catalog drops, and seasonal availability lists.
+              {siteConfig.footer?.newsletterTagline}
             </p>
             <form onSubmit={handleNewsletterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>EMAIL *</label>
@@ -2007,7 +2141,7 @@ export default function App() {
 
             {newsletterSuccess && (
               <div style={{ marginTop: '10px', color: '#4ade80', fontSize: '0.82rem' }}>
-                âœ“ Thank you for subscribing to our wholesale bulletin!
+                {siteConfig.footer?.newsletterSuccess || 'Thank you for subscribing to our wholesale bulletin.'}
               </div>
             )}
           </div>
@@ -2015,10 +2149,10 @@ export default function App() {
 
         <div className="footer-bottom">
           <div>
-            Â© {new Date().getFullYear()} <strong>{siteConfig.legalName}</strong>. All rights reserved.
+            © {new Date().getFullYear()} <strong>{siteConfig.legalName}</strong>. {siteConfig.footer?.copyrightSuffix || 'All rights reserved.'}
           </div>
-          <div style={{ color: '#64748b' }}>
-            Managed by {siteConfig.companyName} â€¢ Global Logistics & Distribution Hub
+          <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <span>Managed by {siteConfig.companyName} • {siteConfig.footer?.managedByLabel || 'Global Logistics & Distribution Hub'}</span>
           </div>
         </div>
       </footer>
